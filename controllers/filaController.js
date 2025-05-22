@@ -52,12 +52,12 @@ function mostrarFilaGeral() {
    }
  }
 
+ let cont = 0;
  function atenderFila(){
-
-   if(!filaGeral.isEmpty()){
+   if(filaPrioritaria.isEmpty() && !filaGeral.isEmpty()){      
       const atendido = filaGeral.dequeue();
       alert("Pessoa atendida");
-      mostrarFila();
+      mostrarFilaGeral();
      
       //salvar no banco texto do navegador
       console.log(atendido.hora);
@@ -66,18 +66,58 @@ function mostrarFilaGeral() {
 
       localStorage.setItem('ultimoAtendido', atendido.nome);
    }
-   else
+   else if(!filaPrioritaria.isEmpty() && cont < 3){
+      const atendido = filaPrioritaria.dequeue();
+      alert("Pessoa atendida");
+      mostrarFilaPrioritaria();
+     
+      //salvar no banco texto do navegador
+      console.log(atendido.hora);
+      const horaAtual = obterHoraAtual();
+      document.getElementById("Atendido").innerHTML = 'O paciente '+atendido.nome+' foi atendido às '+horaAtual+', chegou às '+ atendido.hora +'. Tempo de espera: '+calcularDiferencaHoras(atendido.hora, horaAtual);
+      localStorage.setItem('ultimoAtendido', atendido.nome);
+
+      cont++;
+      console.log(cont);
+   }
+   else if(!filaGeral.isEmpty() && cont == 3){
+      cont = 0;
+      console.log(cont);
+
+      const atendido = filaGeral.dequeue();
+      alert("Pessoa atendida");
+      mostrarFilaGeral();
+
+      //salvar no banco texto do navegador
+      console.log(atendido.hora);
+      const horaAtual = obterHoraAtual();
+      document.getElementById("Atendido").innerHTML = 'O paciente '+atendido.nome+' foi atendido às '+horaAtual+', chegou às '+ atendido.hora +'. Tempo de espera: '+calcularDiferencaHoras(atendido.hora, horaAtual);
+      localStorage.setItem('ultimoAtendido', atendido.nome);
+   }
+   else{
       alert("Fila vazia!");
+   }
 }
 
 function buscarCpf() {
    const cpf = document.getElementById("txtnovoCPF").value;
-   let cont = 0;
+   let contG = 0;
+   let contP = 0;
    for (let item of filaGeral) {
-      cont++;
+      contG++;
       if (item.cpf === cpf) {
          const horaAtual = obterHoraAtual();
-         msg =  "Pessoa encontrada: " + item.nome + "\nPosição na Fila: " + cont + "\nTempo esperando: " +calcularDiferencaHoras(item.hora, horaAtual);
+         msg =  "Pessoa encontrada: " + item.nome + "\nPosição na Fila Geral: " + contG + "\nTempo esperando: " +calcularDiferencaHoras(item.hora, horaAtual);
+         alert(msg);
+
+         return item;
+      }
+   }
+   for (let item of filaPrioritaria) {
+      contP++;
+      if (item.cpf === cpf) {
+         const horaAtual = obterHoraAtual();
+         msg =  "Pessoa encontrada: " + item.nome + "\nPosição na Fila Prioritária: " + contP + "\nTempo esperando: " +calcularDiferencaHoras(item.hora, horaAtual);
          alert(msg);
 
          return item;
