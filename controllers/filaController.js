@@ -1,44 +1,61 @@
-const minhaFila = new FilaCircular(5);
+const filaGeral = new FilaEncadeada(5);
+const filaPrioritaria = new FilaEncadeada(5);
 
 function addElemento(){
 
-    if(!minhaFila.isFull()){
       const nome = document.getElementById("txtnovoNome");
       const cpf = document.getElementById("txtnovoCPF");
+      const dataNasc = document.getElementById("txtnovaDataNasc");
       const data = obterDataAtual();
       const hora = obterHoraAtual();
    
-      //console.log(nome.value);
-      const novoAtendimento = new Atendimento(nome.value, cpf.value, data, hora); 
-       // setar valor do objeto atendimento e inserir na fila
+      const novoAtendimento = new Atendimento(nome.value, cpf.value, dataNasc.value, data, hora); 
 
-       minhaFila.enqueue(novoAtendimento);
-       mostrarFila();
-       nome.value = ""; // limpa
-       cpf.value = ""; // limpa
-       nome.focus(); // cursor no input
-    } 
-    else
-        alert("Fila cheia!");     
-}// fim addElemento
-//-----------------------------------
-function mostrarFila(){
-   const listaFila = document.getElementById("listFila");
-   //listaFila.textContent = minhaFila.toString();
-   listaFila.innerHTML = ""; // limpa a lista
-   for(let item of minhaFila){
+console.log(calcularIdade(dataNasc.value));
 
-      const listaElemento = document.createElement("li");
-      listaElemento.textContent = item;
-      listaFila.appendChild(listaElemento);
-   }
+      if(calcularIdade(dataNasc.value) >= 60){
+         filaPrioritaria.enqueue(novoAtendimento);
+         mostrarFilaPrioritaria();
+         nome.value = ""; 
+         cpf.value = ""; 
+         dataNasc.value = "";
+         nome.focus();
+      }
+      else{
+         filaGeral.enqueue(novoAtendimento);
+         mostrarFilaGeral();
+         nome.value = ""; 
+         cpf.value = ""; 
+         dataNasc.value = "";
+         nome.focus();
+      }      
 }
 
-//-----------------------------
-function atenderFila(){
+function mostrarFilaGeral() {
+   const listaPessoasFila = document.getElementById("listFila");
 
-   if(!minhaFila.isEmpty()){
-      const atendido = minhaFila.dequeue();
+   listaPessoasFila.innerText = "";
+   for (const atendimento of filaGeral){
+         const li = document.createElement("li");
+         li.innerText = atendimento.toString();
+         listaPessoasFila.appendChild(li);
+   }
+ }
+
+ function mostrarFilaPrioritaria() {
+   const listaPessoasFila = document.getElementById("listFilaP");
+   listaPessoasFila.innerText = "";
+   for (const atendimento of filaPrioritaria){
+         const li = document.createElement("li");
+         li.innerText = atendimento.toString();
+         listaPessoasFila.appendChild(li);
+   }
+ }
+
+ function atenderFila(){
+
+   if(!filaGeral.isEmpty()){
+      const atendido = filaGeral.dequeue();
       alert("Pessoa atendida");
       mostrarFila();
      
@@ -56,7 +73,7 @@ function atenderFila(){
 function buscarCpf() {
    const cpf = document.getElementById("txtnovoCPF").value;
    let cont = 0;
-   for (let item of minhaFila) {
+   for (let item of filaGeral) {
       cont++;
       if (item.cpf === cpf) {
          const horaAtual = obterHoraAtual();
@@ -70,3 +87,22 @@ function buscarCpf() {
    alert("CPF não encontrado na fila!");
    return null; 
 }
+
+function calcularIdade(dataNascimento) {
+   // Espera data no formato "dd/mm/aaaa"
+   const [ano, mes, dia] = dataNascimento.split('-').map(Number);
+ 
+   const hoje = new Date();
+   const dataNasc = new Date(ano, mes - 1, dia); // Mês começa em 0 no JavaScript
+ 
+   let idade = hoje.getFullYear() - dataNasc.getFullYear();
+   const mesAtual = hoje.getMonth();
+   const diaAtual = hoje.getDate();
+ 
+   // Verifica se a pessoa ainda não fez aniversário neste ano
+   if (mesAtual < mes - 1 || (mesAtual === mes - 1 && diaAtual < dia)) {
+     idade--;
+   }
+ 
+   return idade;
+ }

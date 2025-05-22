@@ -1,5 +1,4 @@
-//No.js
-
+//models/No.js
 class No{
     #dado;
     #proximo;
@@ -8,21 +7,24 @@ class No{
         this.#proximo = null;
     }
 
-    get proximo(){
-        return this.#proximo;
-    }
     get dado(){
         return this.#dado;
+    }
+
+    get proximo(){
+        return this.#proximo;
     }
 
     set dado(novoDado){
         this.#dado = novoDado;
     }
-    set proximo(proximo){
-        this.#proximo = proximo;
+
+    set proximo(prox){
+        this.#proximo = prox;
     }
 
-    toString{
+    toString(){
         return this.#dado.toString();
     }
+
 }
